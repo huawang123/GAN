@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import tensorflow as tf
-from tensorflow.contrib.layers import batch_norm
+
 def bn(x, is_training, scope):
     return tf.contrib.layers.batch_norm(x,
                                         decay=0.9,
@@ -12,14 +12,16 @@ def bn(x, is_training, scope):
                                         scope=scope)
 
 
-# def bn(x, is_training, scope):
-#     with tf.variable_scope(scope):
-#         return batch_norm(inputs=x,scope=scope,
-#                    updates_collections=None,
-#                    decay=0.9,
-#                    center=True,
-#                    scale=True,
-#                    zero_debias_moving_mean=True, is_training=is_training)
+def concat(tensors, axis, *args, **kwargs):
+    return tf.concat(tensors, axis, *args, **kwargs)
+
+def like_rgb_label(x, y):
+    """Concatenate conditioning vector on feature map axis."""
+    x_shapes = x.get_shape().as_list()
+    y_shapes = y.get_shape().as_list()
+    y = tf.reshape(y, [y_shapes[0],1, 1, y_shapes[-1]])#[batch_size, 1, 1, num_classes]
+    y_ = tf.ones([x_shapes[0], x_shapes[1], x_shapes[2], y_shapes[-1]])#[batch_size, width, height, num_classes]
+    return y*y_
 
 def conv2d(input_, output_dim, kernel=(3,3), stride=(2,2),padding='SAME', activation='',use_bn=False, is_training=False, name="conv2d"):
     with tf.variable_scope(name):
@@ -97,7 +99,7 @@ class data_iter(object):
     def next_batch(self):
         x, y = self.x_batches[self.pointer], self.y_batches[self.pointer]
         self.pointer += 1
-        return x, y
+        return x, np.squeeze(y)
 
     def reset_batch_pointer(self):
         self.pointer = 0
@@ -138,7 +140,7 @@ def save_model(saver, sess, logdir, global_stepe, gl, dl):
     print('\nGen_loss {:.9f} and Dis_loss {:.9f} in step : {})'
           '\ncheckpoint has been saved in : {}'.format(gl, dl, global_stepe, logdir))
 
-def view_samples(epoch, samples, output_dir):
+def view_samples(epoch, samples,shape, output_dir):
     """
     #用于可视化epoch后输出图片
     epoch代表第几次迭代的图像
@@ -148,7 +150,7 @@ def view_samples(epoch, samples, output_dir):
     # Force matplotlib to not use any Xwindows backend.
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
-    rows, cols = 4, 8
+    rows, cols = shape[0],shape[1]
     map = []
     for i in range(rows):
         tmp = []
