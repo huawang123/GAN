@@ -94,7 +94,7 @@ def tr():
                             print('[Epoch: %s]  Step: %s  -------------Gen_loss-------------: %s' % (epoch, step, gl))
                 z_sample_val = np.random.normal(0, 1, size=(batch_size, z_dim)).astype(np.float32)
                 [im] = sess.run([faka_data], feed_dict={spares_label:y, z_prior: z_sample_val})
-                tmp = view_samples(epoch,np.squeeze(im), output_dir)
+                tmp = view_samples(epoch,np.squeeze(im),(4,8), output_dir)
                 show_images_path.append(tmp)
                 save_model(saver, sess, log_path, epoch, gl, dl)
             gen_gif(show_images_path, output_dir)
