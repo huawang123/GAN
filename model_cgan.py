@@ -24,6 +24,4 @@ def generator(z, y, is_training=True, reuse=False):
         batch_size = net.get_shape().as_list()[0]
         net = deconv2d(net, output_size=14, output_channel=64, kernel=(4,4),stride=(2,2),activation='relu', use_bn=True,is_training=True,name='d_conv1')
         out = deconv2d(net, output_size=28, output_channel=1, kernel=(4, 4), stride=(2, 2), activation='sigmoid', name='gen_images')
-        # net = tf.nn.relu(bn(deconv2d(net, [batch_size,14, 14, 64], 4, 4, 2, 2, name='g_dc3'), is_training=is_training,scope='g_bn3'))
-        # out = tf.nn.sigmoid(deconv2d(net, [batch_size, 28, 28, 1], 4, 4, 2, 2, name='g_dc4'))
         return out
