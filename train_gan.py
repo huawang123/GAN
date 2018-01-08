@@ -39,8 +39,7 @@ def tr():
     d_fake, d_fake_logits, _ = discriminator(faka_data, is_training=True, reuse=True)
 
     # divide trainable variables into a group for D and a group for G
-    t_vars = tf.trainable_variables()
-    d_params = [var for var in t_vars if 'dis' in var.name]
+    t_vars = tf.trainable_variables()    d_params = [var for var in t_vars if 'dis' in var.name]
     g_params = [var for var in t_vars if 'gen' in var.name]
 
     d_loss_real = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=d_real_logits, labels=tf.ones_like(d_real)))
@@ -75,7 +74,7 @@ def tr():
         load_model(sess=sess, saver=saver, restore_checkpoint=restore_checkpoint)
         with tf.device('/gpu:%d' % gpu):
             show_images_path = []
-            for epoch in range(2):
+            for epoch in range(max_epoch):
                 data_load = data_iter('train.csv', batch_size)
                 setps = int(total_samples / batch_size)
                 for step in range(setps):
@@ -91,13 +90,14 @@ def tr():
                             print('[Epoch: %s]  Step: %s  -------------Gen_loss-------------: %s' % (epoch, step, gl))
                 z_sample_val = np.random.normal(0, 1, size=(batch_size, z_dim)).astype(np.float32)
                 [im] = sess.run([faka_data], feed_dict={z_prior: z_sample_val})
-                tmp = view_samples(epoch,np.squeeze(im), output_dir)
+                tmp = view_samples(epoch,np.squeeze(im),(4,8), output_dir)
                 show_images_path.append(tmp)
                 save_model(saver, sess, log_path, epoch, gl, dl)
             gen_gif(show_images_path, output_dir)
 
 def te():
-    z_prior = tf.placeholder(tf.float32, [batch_size, 50], name="z_prior")
+    p = 64#图片数量
+    z_prior = tf.placeholder(tf.float32, [p, 50], name="z_prior")
     faka_data = generator(z_prior, is_training=False, reuse=False)
 
     os.environ["CUDA_VISIBLE_DEVICES"] = '%d' % gpu
@@ -110,7 +110,7 @@ def te():
         saver = tf.train.Saver(variables_to_restore)
         load_model(sess=sess, saver=saver, restore_checkpoint=log_path)
         with tf.device('/gpu:%d' % gpu):
-            z_sample_val = np.random.normal(0, 1, size=(batch_size, z_dim)).astype(np.float32)
+            z_sample_val = np.random.normal(0, 1, size=(p, z_dim)).astype(np.float32)
             [im] = sess.run([faka_data], feed_dict={z_prior: z_sample_val})
             _ = view_samples(-1, np.squeeze(im), output_dir)
             
