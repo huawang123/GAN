@@ -172,3 +172,78 @@ def gen_gif(show_images_path, output_dir):
     for i in range(len(show_images_path)):
         images.append(Image.open(show_images_path[i]))
     im.save(output_dir+'mnist.gif', save_all=True, append_images=images, loop=1, duration=1, comment=b"gen_images")
+
+def gen_pair(file):
+    import glob
+    data_path = glob.glob(file+'*.jpg')
+    label = np.ones(len(data_path),np.int32)
+    return data_path,label
+
+def get_image_label_pair(filelist_path):
+    # 解析文本文件
+    label_image = lambda x: x.strip().split('    ')
+    with open(filelist_path) as f:
+        label = [int(label_image(line)[0]) for line in f.readlines()]
+    with open(filelist_path) as f:
+        image_path_list = [label_image(line)[1] for line in f.readlines()]
+    return image_path_list, label
+
+def pre_processing(img, Isize, crop_size, method):
+    # resize and crop
+    img = tf.image.convert_image_dtype(img, dtype=tf.float32)
+    img = tf.image.resize_images(img, [Isize, Isize], method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
+    # img = tf.random_crop(img, [crop_size, crop_size, 3])
+
+    # preprocess
+    if method == 'default':
+        # img = tf.image.random_flip_left_right(img)
+        # img = tf.image.random_brightness(img, max_delta=63)
+        # img = tf.image.random_contrast(img, lower=0.2, upper=1.8)
+        # img = tf.image.per_image_standardization(img)
+        # img = tf.cast(img, tf.float32) * (1. / 255)
+        img = tf.reshape(img, [Isize, Isize, 3])
+
+    # keras preprocess module
+    return img
+
+# 生成相同大小的批次
+def get_batch(image, label, image_W=256, image_H=256, batch_size=32, capacity=256,min_after_dequeue=None, is_training=True):
+    # image, label: 要生成batch的图像路径和标签list
+    # image_W, image_H: 图片的宽高
+    # batch_size: 每个batch有多少张图片
+    # capacity: 队列容量
+    # return: 图像和标签的batch
+
+    # 将python.list类型转换成tf能够识别的格式
+    with tf.variable_scope('input'):
+        image = tf.cast(image, tf.string)
+        label = tf.cast(label, tf.int64)
+        # 生成队列
+        input_queue = tf.train.slice_input_producer([image, label])
+        image_contents = tf.read_file(input_queue[0])
+        label = input_queue[1]
+        image = tf.image.decode_jpeg(image_contents, channels=3)
+        image = pre_processing(image, image_H, image_H, 'default')
+        # 统一图片大小
+        # image = tf.image.resize_images(image, [image_H, image_W], method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
+        # image = tf.cast(image, tf.float32)
+        # image = tf.image.per_image_standardization(image)   # 标准化数据
+        if is_training:
+            if not min_after_dequeue:
+                image_batch, label_batch, filename = tf.train.batch([image, label, input_queue[0]],
+                                                batch_size=batch_size,
+                                                num_threads=64,   # 线程
+                                                capacity=capacity)
+            else:
+                image_batch, label_batch, filename = tf.train.shuffle_batch([image, label, input_queue[0]],
+                                                batch_size=batch_size,
+                                                num_threads=64,  # 线程
+                                                capacity=capacity + min_after_dequeue,
+                                                min_after_dequeue=min_after_dequeue)
+
+        else:
+            image_batch, label_batch, filename = tf.train.batch([image, label, input_queue[0]],
+                                                  batch_size=batch_size,
+                                                  num_threads=64,  # 线程
+                                                  capacity=capacity)
+        return image_batch, label_batch, filename
