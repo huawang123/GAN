@@ -108,7 +108,6 @@ def tr():
 
 def te():
     p = 100#多少张图
-    label = tf.placeholder(tf.float32, [p, y_dim], name='spares_label')
     z_prior = tf.placeholder(tf.float32, [p, z_dim], name="z_prior")
     faka_data = generator(z_prior, label, is_training=False, reuse=False)
 
@@ -121,15 +120,10 @@ def te():
         variables_to_restore = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES,'gen')
         saver = tf.train.Saver(variables_to_restore)
         load_model(sess=sess, saver=saver, restore_checkpoint=log_path)
-        y = np.tile(np.arange(num_classes), [10])
-        y =  np.asarray(np.eye(num_classes)[y],dtype=float)
-        other_char = np.ones((p, other_character))
-        other_char[:,0]=0
-        batch_codes = np.concatenate((y, other_char), axis=1)
         with tf.device('/gpu:%d' % gpu):
             z_sample_val = np.random.normal(0, 1, size=(p, z_dim)).astype(np.float32)
-            [im] = sess.run([faka_data], feed_dict={label:batch_codes, z_prior:z_sample_val})
-            _ = view_samples(101, np.squeeze(im),(10,10), output_dir)
+            [im] = sess.run([faka_data], feed_dict={z_prior:z_sample_val})
+            _ = view_samples(-1, np.squeeze(im),(10,10), output_dir)
 
 if train_flag:
     tr()
