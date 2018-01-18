@@ -1,6 +1,6 @@
 import os
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = '2'
-from model_cgan import *
+from model_lsgan import *
 
 lambd = 0.25
 learning_rate = 0.0004
