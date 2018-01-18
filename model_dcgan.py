@@ -1,4 +1,4 @@
-from ut import *
+from utils import *
 def discriminator(x, is_training=True, reuse=False):
     # Network Architecture is exactly same as in infoGAN (https://arxiv.org/abs/1606.03657)
     with tf.variable_scope("discriminator", reuse=reuse):
