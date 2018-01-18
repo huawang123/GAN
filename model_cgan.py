@@ -1,5 +1,5 @@
 import tensorflow as tf
-from ut import *
+from utils import *
 def discriminator(x, y, is_training=True, reuse=False):
     # Network Architecture is exactly same as in infoGAN (https://arxiv.org/abs/1606.03657)
     batch_size = x.get_shape().as_list()[0]
