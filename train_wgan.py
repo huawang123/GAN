@@ -48,10 +48,10 @@ def tr():
     d_loss_fake = tf.reduce_mean(d_fake_logits)
     d_l2_loss = tf.add_n([weiht_decay * tf.nn.l2_loss(var) for var in tf.trainable_variables()])
     dis_loss = d_loss_real - d_loss_fake + d_l2_loss
-
+    ############################dis_loss = tf.reduce_mean(d_fake_logits - d_real_logits)
     g_l2_loss = tf.add_n([weiht_decay * tf.nn.l2_loss(var) for var in g_params])
     gen_loss = d_loss_fake + g_l2_loss
-
+    ############################gen_loss = tf.reduce_mean(-d_fake_logits)
     # optimizer
     optimizer_g = tf.train.RMSPropOptimizer(learning_rate)
     optimizer_d = tf.train.RMSPropOptimizer(learning_rate)
