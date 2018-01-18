@@ -1,4 +1,4 @@
-from ut import *
+from utils import *
 
 def classify(x, is_training=True, reuse=False):
     with tf.variable_scope('classify', reuse=reuse):
