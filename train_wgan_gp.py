@@ -3,7 +3,7 @@ import os
 import time
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = '2'
 from ut import *
-from model_cgan import *
+from model_wgan_gp import *
 
 lambd = 0.25
 learning_rate = 0.0004
