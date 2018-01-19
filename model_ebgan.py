@@ -1,4 +1,4 @@
-from utils import *
+from ut import *
 def discriminator(x, is_training=True, reuse=False):
     # Network Architecture is exactly same as in infoGAN (https://arxiv.org/abs/1606.03657)
     with tf.variable_scope("discriminator", reuse=reuse):
@@ -12,7 +12,7 @@ def discriminator(x, is_training=True, reuse=False):
         out = deconv2d(net, output_size=28, output_channel=1, kernel=(4, 4), activation='sigmoid', stride=(2, 2),name='out')
         # recon loss
         recon_error = tf.sqrt(2 * tf.nn.l2_loss(out - x)) / batch_size
-        return out, recon_error, embeding
+        return out, recon_error, tf.squeeze(embeding)
 #
 def generator(z, is_training=True, reuse=False):
     # Network Architecture is exactly same as in infoGAN (https://arxiv.org/abs/1606.03657)

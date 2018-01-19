@@ -36,8 +36,8 @@ def pullaway_loss(embeddings):
     normalized_embeddings = embeddings / norm
     similarity = tf.matmul(
         normalized_embeddings, normalized_embeddings, transpose_b=True)
-    batch_size = tf.cast(tf.shape(embeddings)[0], tf.float32)
-    pt_loss = (tf.reduce_sum(similarity) - batch_size) / (batch_size * (batch_size - 1))
+    bs = tf.cast(tf.shape(embeddings)[0], tf.float32)
+    pt_loss = (tf.reduce_sum(similarity) - bs) / (bs * (bs - 1))
     return pt_loss
 
 def tr():
@@ -70,7 +70,7 @@ def tr():
     gen_loss = d_fake_err + pt_loss_weight * pullaway_loss(d_fake_embeding)# + g_l2_loss
 
     # optimizer
-    optimizer_g = tf.train.AdamOptimizer(learning_rate,beta1=0.5)
+    optimizer_g = tf.train.AdamOptimizer(learning_rate*0.1,beta1=0.5)
     optimizer_d = tf.train.AdamOptimizer(learning_rate,beta1=0.5)
     # trainer
     d_trainer = optimizer_d.minimize(dis_loss, var_list=d_params)
