@@ -118,6 +118,16 @@ def load_model(sess, saver, restore_checkpoint):
     except Exception as e:
         print(e)
 
+def prams_summaries_all():
+    # Add summaries for variables.
+    prams0 = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, 'gen')
+    prams1 = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, 'dis')
+    prams = prams0 + prams1
+    sum_list = []
+    for p in prams:
+        name = tf.summary.histogram(p.op.name, p)
+        sum_list.append(name)
+    return sum_list
 
 def count_trainable_params():
     total_parameters = 0
