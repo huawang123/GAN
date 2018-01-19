@@ -42,8 +42,6 @@ def pullaway_loss(embeddings):
 
 def tr():
     global_step = tf.Variable(0, name="global_step", trainable=False)
-    """ BEGAN variable """
-    K = tf.Variable(0., trainable=False, name="K")
 
     # input
     image_dims = [img_width, img_height, depth]
