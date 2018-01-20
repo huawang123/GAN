@@ -26,21 +26,6 @@ output_dir = log_path + 'gengrate_images/'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
-# borrowed from https://github.com/shekkizh/EBGAN.tensorflow/blob/master/EBGAN/Faces_EBGAN.py
-def pullaway_loss(embeddings):
-    """
-    Pull Away loss calculation
-    :param embeddings: The embeddings to be orthogonalized for varied faces. Shape [batch_size, embeddings_dim]
-    :return: pull away term loss
-    """
-    norm = tf.sqrt(tf.reduce_sum(tf.square(embeddings), 1, keep_dims=True))
-    normalized_embeddings = embeddings / norm
-    similarity = tf.matmul(
-        normalized_embeddings, normalized_embeddings, transpose_b=True)
-    bs = tf.cast(tf.shape(embeddings)[0], tf.float32)
-    pt_loss = (tf.reduce_sum(similarity) - bs) / (bs * (bs - 1))
-    return pt_loss
-
 def tr():
     global_step = tf.Variable(0, name="global_step", trainable=False)
     # input
