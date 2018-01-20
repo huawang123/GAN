@@ -1,6 +1,6 @@
 import os
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = '2'
-from model_began import *
+from model_vae import *
 
 learning_rate = 0.0004
 img_width = 28
