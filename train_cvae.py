@@ -15,10 +15,6 @@ total_samples = 42000
 gpu = 3
 train_flag = False
 
-# EBGAN Parameter
-margin = max(1,batch_size/64.)        # margin for loss function
-pt_loss_weight = 0.01
-
 train_data_path = '/home/wh/working/train.csv'
 log_path = '/storage/wanghua/kaggle/log/gan_mnist_eb/'
 restore_checkpoint = '/storage/wanghua/kaggle/filelist/'
